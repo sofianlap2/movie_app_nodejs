@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 
 const routes = require("./Routes/movieRoutes");
+const authRouter = require('./Routes/authRouter');
 const CustomError = require("./Utils/CustomError");
 const globalErrorHandler = require('./Controllers/errorController')
 
@@ -12,7 +13,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static("./public"));
 console.log('Server run on mode ' + process.env.NODE_ENV)
 
-app.use("/api", routes);
+app.use("/api/movies", routes);
+app.use("/api/users", authRouter)
 app.all("*", (req,res,next) => {
     // res.status(404).json({
     //     status: "fail",
