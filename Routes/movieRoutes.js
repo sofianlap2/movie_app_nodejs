@@ -1,16 +1,16 @@
 const express = require("express");
 const moviesController = require('../Controllers/movieController')
-
+const authController = require('../Controllers/authController')
 const router = express.Router();
 
 router.route('/')
 .post((moviesController.createMovie))
-.get((moviesController.getAllMovies))
+.get(authController.protect, moviesController.getAllMovies)
 
 router.route('/:id')
-.get((moviesController.getMovie))
-.patch((moviesController.updateMovie))
-.delete((moviesController.deleteMovie))
+.get(moviesController.getMovie)
+.patch(moviesController.updateMovie)
+.delete(moviesController.deleteMovie)
 
 module.exports = router;
 

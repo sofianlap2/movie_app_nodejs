@@ -31,6 +31,10 @@ const validationErrorHandler = (err) => {
     return new CustomError(msg, 400);
 }
 
+const handleExpiredJwt = (err) => {
+    return new CustomError('JWT has expired please login again', 401)
+}
+
 const prodErrors = (res, error) => {
     if(error.isOperational) {
         res.status(error.statusCode).json({
@@ -60,6 +64,9 @@ module.exports = (error,req,res,next) => {
         }
         if(error.name == "ValidationError") {
             error = validationErrorHandler(error)
+        }
+        if(error.name === "TokenExpiredError") {
+            error = handleExpiredJwt(error)
         }
         prodErrors(res, error)
     }
