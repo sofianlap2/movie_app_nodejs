@@ -10,7 +10,7 @@ router.route('/')
 router.route('/:id')
 .get(moviesController.getMovie)
 .patch(moviesController.updateMovie)
-.delete(moviesController.deleteMovie)
+.delete(authController.protect, authController.restrict('admin'), moviesController.deleteMovie)
 
 module.exports = router;
 

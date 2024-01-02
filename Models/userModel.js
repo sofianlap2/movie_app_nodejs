@@ -23,6 +23,11 @@ const UserSchema = new mongoose.Schema({
         minLength: 8,
         select: false
     },
+    role: {
+        type: String,
+        enum: ['user', 'admin'],
+        default: 'user'
+    },
     confirmPassword: {
         type: String,
         required: [true, 'Please enter a password'],

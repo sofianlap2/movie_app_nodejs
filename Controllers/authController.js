@@ -69,14 +69,28 @@ exports.protect = asyncErrorHandler(
         }
         // 2. Validate the token
         const decodedToken = await util.promisify(jwt.verify)(token, process.env.SECRET_STR)
-        console.log(decodedToken)
 
         // 3. If the user exists
+        const user = await UserModel.findById(decodedToken.id);
 
-        // 4. If the user changed password after the token was created
+        if(!user) {
+            const error = new CustomError('the user with the given token does not exist', 401);
+            next(error)
+        }
 
-        // 5. Allow user to access route
+        // 4. Allow user to access route
 
+        req.user = user
         next()
     }
 )
+
+exports.restrict = (role) => {
+    return (req, res, next) => {
+        if(req.user.role !== role) {
+            const error = new CustomError('You do not have permission to perform this action', 403)
+            next(error)
+        }
+        next()
+    }
+}
