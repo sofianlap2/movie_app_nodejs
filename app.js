@@ -14,7 +14,7 @@ app.use(express.static("./public"));
 console.log('Server run on mode ' + process.env.NODE_ENV)
 
 app.use("/api/movies", routes);
-app.use("/api/users", authRouter)
+app.use("/", authRouter)
 app.all("*", (req,res,next) => {
     // res.status(404).json({
     //     status: "fail",
