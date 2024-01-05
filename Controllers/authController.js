@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const util = require("util");
 const sendEmail = require("../Utils/email");
+const crypto = require('crypto')
 
 const signToken = (idParam) => {
   return jwt.sign({ id: idParam }, process.env.SECRET_STR, {
@@ -137,6 +138,41 @@ exports.forgotPassword = asyncErrorHandler(async (req, res, next) => {
     user.passwordResetTokenExpires = undefined;
     user.save({ validateBeforeSave: false });
 
-    return next(new CustomError('There was an error sending password reser email. Please try again'))
+    return next(new CustomError('There was an error sending password reser email. Please try again', 500))
   }
 });
+
+
+exports.resetPassword = asyncErrorHandler(
+  async (req,res,next) => {
+    // if user exists with the given token and not expiredd
+  const token = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
+  const user = await UserModel.findOne({ passwordResetToken: token, passwordResetTokenExpires: {$gt: Date.now()} })
+
+  if(!user) {
+    const error = new CustomError(
+      "Token is invalid or has expired",
+      400
+    );
+    return next(error);
+  }
+
+  //reset password
+
+  user.password = req.body.password;
+  user.confirmPassword = req.body.confirmPassword;
+  user.passwordResetToken = undefined;
+  user.passwordResetTokenExpires = undefined;
+
+  user.save();
+
+  //login the user
+
+  const logginToken = signToken(user._id);
+
+  res.status(200).json({
+    status: "success",
+    logginToken
+  });
+})
